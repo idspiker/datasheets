@@ -8,10 +8,10 @@ import { ParsedXMLNode, ParsedXMLTree, XMLAttribute } from './xml.service';
 export class XmlReaderService {
   private xmlHeaderTag = /^<\?xml(?:\s?(?:[a-zA-Z0-9_\-\.]+="[^"]+"))*\?>/;
   private openingTag =
-    /^<([a-zA-Z0-9_\-\.]+)(?:\s(?:[a-zA-Z0-9_\-:\.]+="[^"]+"))*>/;
-  private closingTag = /^<\/([a-zA-Z0-9_\-\.]+)>/;
+    /^<([a-zA-Z0-9_\-:\.]+)(?:\s(?:[a-zA-Z0-9_\-:\.]+="[^"]+"))*>/;
+  private closingTag = /^<\/([a-zA-Z0-9_\-:\.]+)>/;
   private selfClosingTag =
-    /^<([a-zA-Z0-9_\-\.]+)(?:\s?(?:[a-zA-Z0-9_\-:\.]+="[^"]+"))*\/>/;
+    /^<([a-zA-Z0-9_\-:\.]+)(?:\s?(?:[a-zA-Z0-9_\-:\.]+="[^"]+"))*\/>/;
   private xmlAttribute = /([a-zA-Z0-9_\-:\.]+="[^"]+")/g;
 
   readXML(xmlString: string): ParsedXMLTree {
@@ -107,6 +107,11 @@ export class XmlReaderService {
           selfClosing: true,
         };
 
+        if (parsingStack.length === 0) {
+          rootNode = tagObj;
+          break;
+        }
+
         parsingStack[parsingStack.length - 1].children.push(tagObj);
 
         xmlString = xmlString.slice(selfClosingTagMatch[0].length);
@@ -114,14 +119,14 @@ export class XmlReaderService {
         continue;
       }
 
+      if (parsingStack.length === 0) break;
+
       // Handle text node
       const indexOfNextTag = xmlString.indexOf('<');
       const value = xmlString.slice(0, indexOfNextTag).trim();
       xmlString = xmlString.slice(indexOfNextTag);
       xmlString = xmlString.trim();
       parsingStack[parsingStack.length - 1].children.push(value);
-
-      if (parsingStack.length === 0) break;
     }
 
     return rootNode;
