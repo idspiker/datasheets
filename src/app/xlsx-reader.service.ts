@@ -2,18 +2,21 @@ import { Injectable } from '@angular/core';
 
 import { unzipRaw, ZipEntry } from 'unzipit';
 
-import { XmlReaderService } from './xml-reader.service';
+import { XmlService } from './xml.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class XlsxReaderService {
-  constructor(private xmlReader: XmlReaderService) {}
+  constructor(private xml: XmlService) {}
 
   async read(xlsxFile: File) {
     const xmlFiles = await this.unzip(xlsxFile);
 
-    console.log(this.xmlReader.readXML(xmlFiles[1]));
+    const xmlTree = this.xml.read(xmlFiles[1]);
+    console.log(xmlTree);
+
+    console.log(this.xml.write(xmlTree));
   }
 
   async unzip(xlsxFile: File): Promise<string[]> {
