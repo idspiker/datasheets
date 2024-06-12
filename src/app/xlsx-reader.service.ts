@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { unzipRaw } from 'unzipit';
+import { SharedStringsCatalog } from '../classes/xlsx/shared-strings-catalog';
 import { Worksheet } from '../classes/xlsx/worksheet';
 
 import { XmlService } from './xml.service';
@@ -28,9 +29,15 @@ export class XlsxReaderService {
 
     console.log(rawWorkbook);
 
-    const testWorksheet = new Worksheet('Sheet1', rawWorkbook[2].dataTree);
+    const testSharedStrings = new SharedStringsCatalog(rawWorkbook[7].dataTree);
+    const testWorksheet = new Worksheet(
+      'Sheet1',
+      rawWorkbook[2].dataTree,
+      testSharedStrings
+    );
 
     console.log(testWorksheet);
+    console.log(testSharedStrings);
     console.log(testWorksheet.get('A1'));
     console.log(this.xml.write(rawWorkbook[2].dataTree));
   }

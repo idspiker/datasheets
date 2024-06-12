@@ -28,6 +28,10 @@ export class XMLTag implements XMLable {
     return undefined;
   }
 
+  hasAttribute(key: string): boolean {
+    return this.getAttributeValue(key) !== undefined;
+  }
+
   toXML(): string {
     if (this.selfClosing) {
       return this.makeSelfClosingTag();
@@ -37,6 +41,10 @@ export class XMLTag implements XMLable {
     const tags = this.makeTags();
 
     return tags.opening + children.join('') + tags.closing;
+  }
+
+  hasNameOf(name: string): boolean {
+    return this.tagName === name;
   }
 
   private makeTags(): { opening: string; closing: string } {

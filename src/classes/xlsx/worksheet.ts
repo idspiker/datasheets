@@ -2,6 +2,7 @@ import { ParsedXMLTree } from '../../app/xml.service';
 import { XMLTag } from '../xml/xml-tag';
 import { XMLText } from '../xml/xml-text';
 import { Cell } from './cell';
+import { SharedStringsCatalog } from './shared-strings-catalog';
 
 interface RowData {
   rowNumber: number;
@@ -14,13 +15,19 @@ interface CellData {
 }
 
 export class Worksheet {
-  // TODO fix string reading by parsing shared strings first, then adding shared strongs lookup on designated nodes (t="s")
+  // TODO add (s="?") value handling (styling)
   name: string;
   rows: Map<string, Cell>[];
+  sharedStringsCatalog: SharedStringsCatalog;
 
-  constructor(name: string, xmlWorksheet: ParsedXMLTree) {
+  constructor(
+    name: string,
+    xmlWorksheet: ParsedXMLTree,
+    sharedStringsCatalog: SharedStringsCatalog
+  ) {
     this.name = name;
     this.rows = this.parseWorksheetCells(xmlWorksheet);
+    this.sharedStringsCatalog = sharedStringsCatalog;
   }
 
   get(key: string): string | undefined {
@@ -35,7 +42,13 @@ export class Worksheet {
 
     const cell = cellRow.get(col);
 
-    return cell ? cell.value : undefined;
+    if (!cell) return undefined;
+
+    const value = cell.isSharedString
+      ? this.sharedStringsCatalog.get(cell.value)
+      : cell.value;
+
+    return value;
   }
 
   private parseWorksheetCells(
@@ -102,7 +115,10 @@ export class Worksheet {
   }
 
   private processCell(cellNode: XMLTag): CellData | undefined {
-    let key = cellNode.getAttributeValue('r');
+    const key = cellNode.getAttributeValue('r');
+    const style = cellNode.getAttributeValue('s');
+    const isSharedString =
+      cellNode.hasAttribute('t') && cellNode.getAttributeValue('t') === 's';
 
     if (key === undefined) return undefined;
 
@@ -121,7 +137,7 @@ export class Worksheet {
 
     return {
       column,
-      cell: new Cell(value),
+      cell: new Cell(value, style, isSharedString),
     };
   }
 
