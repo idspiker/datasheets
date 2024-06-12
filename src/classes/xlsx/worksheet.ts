@@ -16,6 +16,7 @@ interface CellData {
 
 export class Worksheet {
   // TODO add (s="?") value handling (styling)
+  // TODO add function cell handling
   name: string;
   private rows: Map<string, Cell>[];
   private sharedStringsCatalog: SharedStringsCatalog;
