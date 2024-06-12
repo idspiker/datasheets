@@ -2,22 +2,12 @@ import { Injectable } from '@angular/core';
 
 import { XmlReaderService } from './xml-reader.service';
 import { XmlWriterService } from './xml-writer.service';
+import { XMLTag } from '../classes/xml/xml-tag';
+import { XMLAttribute } from '../classes/xml/xml-attribute';
 
 export interface ParsedXMLTree {
   attributes: XMLAttribute[];
-  root: ParsedXMLNode | undefined;
-}
-
-export interface ParsedXMLNode {
-  tagName: string;
-  attributes: XMLAttribute[];
-  children: Array<ParsedXMLNode | string>;
-  selfClosing: boolean;
-}
-
-export interface XMLAttribute {
-  key: string;
-  value: string;
+  root: XMLTag | undefined;
 }
 
 @Injectable({

@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { ParsedXMLNode, ParsedXMLTree, XMLAttribute } from './xml.service';
+import { ParsedXMLTree } from './xml.service';
+import { XMLAttribute } from '../classes/xml/xml-attribute';
+import { XMLTag } from '../classes/xml/xml-tag';
+import { XMLText } from '../classes/xml/xml-text';
 
 @Injectable({
   providedIn: 'root',
@@ -56,26 +59,24 @@ export class XmlReaderService {
     */
   }
 
-  private parseXMLTree(xmlString: string): ParsedXMLNode | undefined {
+  private parseXMLTree(xmlString: string): XMLTag | undefined {
     let rootNode = undefined;
-    const parsingStack: ParsedXMLNode[] = [];
+    const parsingStack: XMLTag[] = [];
 
     while (xmlString.length !== 0) {
       const openingTagMatch = xmlString.match(this.openingTag);
       if (openingTagMatch) {
-        const tagObj = {
-          tagName: openingTagMatch[1],
-          attributes: this.getXMLAttributes(openingTagMatch[0]),
-          children: [],
-          selfClosing: false,
-        };
+        const tag = new XMLTag(
+          openingTagMatch[1],
+          this.getXMLAttributes(openingTagMatch[0])
+        );
 
         if (parsingStack.length === 0) {
-          rootNode = tagObj;
-          parsingStack.push(tagObj);
+          rootNode = tag;
+          parsingStack.push(tag);
         } else {
-          parsingStack[parsingStack.length - 1].children.push(tagObj);
-          parsingStack.push(tagObj);
+          parsingStack[parsingStack.length - 1].children.push(tag);
+          parsingStack.push(tag);
         }
 
         xmlString = xmlString.slice(openingTagMatch[0].length);
@@ -100,19 +101,19 @@ export class XmlReaderService {
 
       const selfClosingTagMatch = xmlString.match(this.selfClosingTag);
       if (selfClosingTagMatch) {
-        const tagObj = {
-          tagName: selfClosingTagMatch[1],
-          attributes: this.getXMLAttributes(selfClosingTagMatch[0]),
-          children: [],
-          selfClosing: true,
-        };
+        const tag = new XMLTag(
+          selfClosingTagMatch[1],
+          this.getXMLAttributes(selfClosingTagMatch[0]),
+          [],
+          true
+        );
 
         if (parsingStack.length === 0) {
-          rootNode = tagObj;
+          rootNode = tag;
           break;
         }
 
-        parsingStack[parsingStack.length - 1].children.push(tagObj);
+        parsingStack[parsingStack.length - 1].children.push(tag);
 
         xmlString = xmlString.slice(selfClosingTagMatch[0].length);
         xmlString = xmlString.trim();
@@ -123,7 +124,7 @@ export class XmlReaderService {
 
       // Handle text node
       const indexOfNextTag = xmlString.indexOf('<');
-      const value = xmlString.slice(0, indexOfNextTag).trim();
+      const value = new XMLText(xmlString.slice(0, indexOfNextTag).trim());
       xmlString = xmlString.slice(indexOfNextTag);
       xmlString = xmlString.trim();
       parsingStack[parsingStack.length - 1].children.push(value);
@@ -139,10 +140,10 @@ export class XmlReaderService {
     for (const attrib of attributesMatch) {
       const splitAttribute = String(attrib[0]).split('=');
 
-      const attributeObject = {
-        key: splitAttribute[0],
-        value: splitAttribute[1].slice(1, -1),
-      };
+      const attributeObject = new XMLAttribute(
+        splitAttribute[0],
+        splitAttribute[1].slice(1, -1)
+      );
 
       attributes.push(attributeObject);
     }

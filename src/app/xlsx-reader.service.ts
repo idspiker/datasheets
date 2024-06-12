@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { EventType } from '@angular/router';
 
-import { unzipRaw, ZipEntry } from 'unzipit';
+import { unzipRaw } from 'unzipit';
+import { Worksheet } from '../classes/xlsx/worksheet';
 
 import { XmlService } from './xml.service';
 
 import { ParsedXMLTree } from './xml.service';
 
-interface XMLFileData {
+export interface XMLFileData {
   fileName: string;
   dataTree: ParsedXMLTree;
 }
@@ -27,6 +27,12 @@ export class XlsxReaderService {
     const rawWorkbook = await this.getXMLData(xlsxFile);
 
     console.log(rawWorkbook);
+
+    const testWorksheet = new Worksheet('Sheet1', rawWorkbook[2].dataTree);
+
+    console.log(testWorksheet);
+    console.log(testWorksheet.get('A1'));
+    console.log(this.xml.write(rawWorkbook[2].dataTree));
   }
 
   async unzip(xlsxFile: File): Promise<RawXMLFileData[]> {
@@ -40,10 +46,6 @@ export class XlsxReaderService {
         rawData: await entry.text(),
       });
     }
-
-    // unzipped.entries.forEach((e: ZipEntry) =>
-    //   entries.push({ fileName: '', rawData: e.text() })
-    // );
 
     return entries;
   }
