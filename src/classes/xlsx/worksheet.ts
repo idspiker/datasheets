@@ -17,8 +17,8 @@ interface CellData {
 export class Worksheet {
   // TODO add (s="?") value handling (styling)
   name: string;
-  rows: Map<string, Cell>[];
-  sharedStringsCatalog: SharedStringsCatalog;
+  private rows: Map<string, Cell>[];
+  private sharedStringsCatalog: SharedStringsCatalog;
 
   constructor(
     name: string,
@@ -26,8 +26,8 @@ export class Worksheet {
     sharedStringsCatalog: SharedStringsCatalog
   ) {
     this.name = name;
-    this.rows = this.parseWorksheetCells(xmlWorksheet);
     this.sharedStringsCatalog = sharedStringsCatalog;
+    this.rows = this.parseWorksheetCells(xmlWorksheet);
   }
 
   get(key: string): string | undefined {
@@ -44,11 +44,7 @@ export class Worksheet {
 
     if (!cell) return undefined;
 
-    const value = cell.isSharedString
-      ? this.sharedStringsCatalog.get(cell.value)
-      : cell.value;
-
-    return value;
+    return cell.getValue();
   }
 
   private parseWorksheetCells(
@@ -137,7 +133,7 @@ export class Worksheet {
 
     return {
       column,
-      cell: new Cell(value, style, isSharedString),
+      cell: new Cell(value, style, isSharedString, this.sharedStringsCatalog),
     };
   }
 
