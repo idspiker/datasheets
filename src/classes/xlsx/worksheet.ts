@@ -1,7 +1,7 @@
 import { ParsedXMLTree } from '../../app/xml.service';
 import { XMLTag } from '../xml/xml-tag';
 import { XMLText } from '../xml/xml-text';
-import { Cell } from './cell';
+import { Cell, CellType } from './cell';
 import { SharedStringsCatalog } from './shared-strings-catalog';
 
 interface RowData {
@@ -114,8 +114,11 @@ export class Worksheet {
   private processCell(cellNode: XMLTag): CellData | undefined {
     const key = cellNode.getAttributeValue('r');
     const style = cellNode.getAttributeValue('s');
-    const isSharedString =
-      cellNode.hasAttribute('t') && cellNode.getAttributeValue('t') === 's';
+    const typeAttribute = cellNode.getAttributeValue('t');
+
+    const cellType = typeAttribute
+      ? Cell.getType(typeAttribute)
+      : CellType.NUMBER;
 
     if (key === undefined) return undefined;
 
@@ -124,17 +127,28 @@ export class Worksheet {
     if (!column) return undefined;
 
     let value = '';
+    let formulaString = '';
     for (const child of cellNode.children) {
       if (child instanceof XMLText) continue;
 
       if (child.tagName === 'v' && child.children[0] instanceof XMLText) {
         value = child.children[0].value;
       }
+
+      if (child.tagName === 'f' && child.children[0] instanceof XMLText) {
+        formulaString = child.children[0].value;
+      }
     }
 
     return {
       column,
-      cell: new Cell(value, style, isSharedString, this.sharedStringsCatalog),
+      cell: new Cell(
+        value,
+        style,
+        cellType,
+        this.sharedStringsCatalog,
+        formulaString
+      ),
     };
   }
 

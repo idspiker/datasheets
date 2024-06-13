@@ -31,6 +31,7 @@ export class XlsxReaderService {
     const workbook = new Workbook(rawWorkbook);
 
     console.log(workbook);
+    console.log(workbook.worksheets.get('xl/worksheets/sheet1.xml')?.get('D2'));
     console.log(this.xml.write(rawWorkbook[2].dataTree));
   }
 
