@@ -1,16 +1,16 @@
 import { XMLable } from './xmlable';
-import { XMLAttribute } from './xml-attribute';
 import { XMLText } from './xml-text';
+import { XMLAttributes } from './xml-attributes';
 
 export class XMLTag implements XMLable {
   tagName: string;
-  attributes: XMLAttribute[];
+  attributes: XMLAttributes;
   children: Array<XMLTag | XMLText>;
   selfClosing: boolean;
 
   constructor(
     tagName: string,
-    attributes: XMLAttribute[] = [],
+    attributes: XMLAttributes,
     children: Array<XMLTag | XMLText> = [],
     selfClosing: boolean = false
   ) {
@@ -21,11 +21,7 @@ export class XMLTag implements XMLable {
   }
 
   getAttributeValue(key: string): string | undefined {
-    for (const attrib of this.attributes) {
-      if (attrib.key === key) return attrib.value;
-    }
-
-    return undefined;
+    return this.attributes.get(key);
   }
 
   hasAttribute(key: string): boolean {
@@ -48,13 +44,7 @@ export class XMLTag implements XMLable {
   }
 
   private makeTags(): { opening: string; closing: string } {
-    let opening = `<${this.tagName}`;
-
-    for (const attrib of this.attributes) {
-      opening += ' ' + attrib.toXML();
-    }
-
-    opening += '>';
+    const opening = `<${this.tagName}${this.attributes.toXML()}>`;
 
     const closing = `</${this.tagName}>`;
 
@@ -62,14 +52,6 @@ export class XMLTag implements XMLable {
   }
 
   private makeSelfClosingTag(): string {
-    let tag = `<${this.tagName}`;
-
-    for (const attrib of this.attributes) {
-      tag += ' ' + attrib.toXML();
-    }
-
-    tag += '/>';
-
-    return tag;
+    return `<${this.tagName}${this.attributes}/>`;
   }
 }

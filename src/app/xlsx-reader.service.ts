@@ -31,8 +31,6 @@ export class XlsxReaderService {
     const workbook = new Workbook(rawWorkbook);
 
     console.log(workbook);
-    console.log(workbook.worksheets.get('xl/worksheets/sheet1.xml')?.get('D2'));
-    console.log(this.xml.write(rawWorkbook[2].dataTree));
   }
 
   async unzip(xlsxFile: File): Promise<RawXMLFileData[]> {
@@ -50,17 +48,17 @@ export class XlsxReaderService {
     return entries;
   }
 
-  async getXMLData(xlsxFile: File): Promise<XMLFileData[]> {
+  async getXMLData(xlsxFile: File): Promise<Map<string, XMLFileData>> {
     const rawXMLFiles = await this.unzip(xlsxFile);
 
-    const xmlFiles: XMLFileData[] = [];
+    const xmlFiles: Map<string, XMLFileData> = new Map();
     for (const rawFile of rawXMLFiles) {
       const xmlFileData = {
         fileName: rawFile.fileName,
         dataTree: this.xml.read(rawFile.rawData),
       };
 
-      xmlFiles.push(xmlFileData);
+      xmlFiles.set(rawFile.fileName, xmlFileData);
     }
 
     return xmlFiles;

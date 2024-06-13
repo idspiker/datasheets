@@ -3,10 +3,10 @@ import { Injectable } from '@angular/core';
 import { XmlReaderService } from './xml-reader.service';
 import { XmlWriterService } from './xml-writer.service';
 import { XMLTag } from '../classes/xml/xml-tag';
-import { XMLAttribute } from '../classes/xml/xml-attribute';
+import { XMLAttributes } from '../classes/xml/xml-attributes';
 
 export interface ParsedXMLTree {
-  attributes: XMLAttribute[];
+  attributes: XMLAttributes;
   root: XMLTag | undefined;
 }
 

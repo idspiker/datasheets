@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
 import { ParsedXMLTree } from './xml.service';
-import { XMLTag } from '../classes/xml/xml-tag';
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +18,6 @@ export class XmlWriterService {
   }
 
   private makeXMLHeader(xmlTree: ParsedXMLTree): string {
-    let tag = '<?xml';
-
-    for (const attrib of xmlTree.attributes) {
-      tag += ' ' + attrib.toXML();
-    }
-
-    tag += '?>';
-
-    return tag;
+    return `<?xml${xmlTree.attributes.toXML()}?>`;
   }
 }

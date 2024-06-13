@@ -16,19 +16,27 @@ interface CellData {
 
 export class Worksheet {
   // TODO add (s="?") value handling (styling)
-  // TODO add function cell handling
   name: string;
+  private sheetId: string;
+  private rId: string;
+  private state: string;
   private rows: Map<string, Cell>[];
   private sharedStringsCatalog: SharedStringsCatalog;
 
   constructor(
     name: string,
+    rId: string,
+    sheetId: string,
     xmlWorksheet: ParsedXMLTree,
-    sharedStringsCatalog: SharedStringsCatalog
+    sharedStringsCatalog: SharedStringsCatalog,
+    state: string = 'visible'
   ) {
     this.name = name;
+    this.rId = rId;
+    this.sheetId = sheetId;
     this.sharedStringsCatalog = sharedStringsCatalog;
     this.rows = this.parseWorksheetCells(xmlWorksheet);
+    this.state = state;
   }
 
   get(key: string): string | undefined {

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 
 import { ParsedXMLTree } from './xml.service';
-import { XMLAttribute } from '../classes/xml/xml-attribute';
 import { XMLTag } from '../classes/xml/xml-tag';
 import { XMLText } from '../classes/xml/xml-text';
+import { XMLAttributes } from '../classes/xml/xml-attributes';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +25,7 @@ export class XmlReaderService {
 
     if (!xmlHeader) {
       return {
-        attributes: [],
+        attributes: new XMLAttributes(),
         root: undefined,
       };
     }
@@ -133,19 +133,17 @@ export class XmlReaderService {
     return rootNode;
   }
 
-  private getXMLAttributes(tag: string): XMLAttribute[] {
+  private getXMLAttributes(tag: string): XMLAttributes {
     const attributesMatch = tag.matchAll(this.xmlAttribute);
 
-    const attributes: XMLAttribute[] = [];
+    const attributes: XMLAttributes = new XMLAttributes();
     for (const attrib of attributesMatch) {
       const splitAttribute = String(attrib[0]).split('=');
 
-      const attributeObject = new XMLAttribute(
+      attributes.addAttribute(
         splitAttribute[0],
         splitAttribute[1].slice(1, -1)
       );
-
-      attributes.push(attributeObject);
     }
 
     return attributes;
